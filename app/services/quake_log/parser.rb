@@ -14,7 +14,7 @@ module QuakeLog
       File.foreach(@file_path) do |line|
         case
         when is_start_match?(line)
-          handle_start_match(game)
+          handle_crashed_match(game)
           game = Game.new
         when is_end_match?(line)
           handle_end_match(game)
@@ -25,10 +25,11 @@ module QuakeLog
           handle_kill(game, line)
         end
       end
+      handle_crashed_match(game)
     end
 
     private
-      def handle_start_match(game)
+      def handle_crashed_match(game)
         if game
           game.has_crashed = true
           game.save
@@ -55,7 +56,8 @@ module QuakeLog
         victim_name = get_victim_name(line)
         death_cause = get_death_cause(line)
 
-        if killer_name == "<world>"
+        if killer_name == "<world>" || killer_name == victim_name
+          # -1 kill score if it was cause by <world> OR suicide
           game.kills[victim_name] -= 1
         else
           game.kills[killer_name] += 1
