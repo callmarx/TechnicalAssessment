@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module QuakeLog
   module Checks
     def is_start_match?(line)
@@ -17,19 +19,19 @@ module QuakeLog
     end
 
     def get_player_name(line)
-      line[/n\\(.*?)\\t/]&.gsub("n\\", "")&.gsub("\\t", "")
+      line.match(/n\\(.*?)\\t/)&.[](1)
     end
 
     def get_killer_name(line)
-      line.match(/(?:[^:]+:){2}\s*([^:]+)\s+killed/)[1]
+      line.match(/(?:[^:]+:){2}\s*([^:]+)\s+killed/)&.[](1)
     end
 
     def get_victim_name(line)
-      line.match(/killed\s+(.*?)\s+by/)[1]
+      line.match(/killed\s+(.*?)\s+by/)&.[](1)
     end
 
     def get_death_cause(line)
-      line.match(/MOD_\w+$/)[0]
+      line.match(/MOD_\w+$/)&.[](0)
     end
   end
 end
