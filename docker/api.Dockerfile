@@ -20,7 +20,12 @@ WORKDIR /app
 
 RUN gem update --system && gem install bundler
 
-ENTRYPOINT ["./bin/docker-entrypoint.sh"]
+ENTRYPOINT ["./docker/entrypoints/api-entrypoint.sh"]
+
+# HEALTHCHECK --interval=5s --timeout=3s --retries=4 \
+#   CMD curl -f http://localhost:3000/healthy || exit 1
+HEALTHCHECK --interval=5s --timeout=3s --retries=4 \
+  CMD curl -f http://localhost:3000 || exit 1
 
 EXPOSE 3000
 

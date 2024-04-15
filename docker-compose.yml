@@ -2,7 +2,9 @@ version: "3.8"
 
 services:
   api:
-    build: .
+    build:
+      context: ./
+      dockerfile: ./docker/api.Dockerfile
     volumes:
       - .:/app
       - bundle:/usr/local/bundle
@@ -13,6 +15,11 @@ services:
       - DATABASE_HOST=db
       - DATABASE_USERNAME=postgres
       - DATABASE_PASSWORD=postgres
+    # healthcheck:
+    #   test: curl -f http://localhost:3000/healthy
+    #   interval: 5s
+    #   timeout: 5s
+    #   retries: 20
     depends_on:
       db:
         condition: service_healthy
@@ -48,6 +55,31 @@ services:
     volumes:
       - minio_data:/data
     command: server --console-address ":9090" /data
+    healthcheck:
+      test: mc ready local
+      interval: 2s
+      timeout: 5s
+      retries: 30
+
+  setup_minio:
+    image: minio/mc
+    depends_on:
+      minio:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      if [ ! -f executed.txt ]; then
+        mc config host add minio http://minio:9000 admin 12345678;
+        mc mb minio/quake3logs;
+        mc anonymous set public minio/quake3logs;
+        mc admin config set minio notify_webhook:logcreate endpoint='http://api:3000/uploaded-event' auth_token='some_secure_token' queue_limit='100';
+        mc admin service restart minio;
+        mc event add minio/quake3logs arn:minio:sqs::logcreate:webhook --event put;
+        touch executed.txt
+      fi;
+      exit 0;"
 
 volumes:
   db:
