@@ -4,14 +4,14 @@ module QuakeLog
   class Parser
     include Checks
 
-    def initialize(file_path)
-      @file_path = file_path
+    def initialize(file)
+      @file = file
     end
 
     def perform
       game = nil
 
-      File.foreach(@file_path) do |line|
+      @file.each_line do |line|
         case
         when is_start_match?(line)
           handle_crashed_match(game)

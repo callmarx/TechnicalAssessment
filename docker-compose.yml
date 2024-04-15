@@ -1,9 +1,25 @@
-version: '3.5'
+version: "3.8"
 
 services:
+  api:
+    build: .
+    volumes:
+      - .:/app
+      - bundle:/usr/local/bundle
+    ports:
+      - "3000:3000"
+    environment:
+      - HISTFILE=/app/log/.bash_history 
+      - DATABASE_HOST=db
+      - DATABASE_USERNAME=postgres
+      - DATABASE_PASSWORD=postgres
+    depends_on:
+      db:
+        condition: service_healthy
+      # redis:
+      #   condition: service_started
   db:
     image: postgres:14-alpine
-    container_name: tech-assessment-db-ctr
     mem_limit: 256m
     command: -c fsync=off --client-min-messages=warning
     volumes:
@@ -11,11 +27,29 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_INITDB_ARGS: '--encoding=UTF-8 --lc-collate=C --lc-ctype=C'
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=C --lc-ctype=C
     restart: on-failure
-    logging:
-      driver: none
+    healthcheck:
+      test: pg_isready -U postgres
+      interval: 2s
+      timeout: 5s
+      retries: 30
+
+  minio:
+    image: minio/minio
+    container_name: minio
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: 12345678
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9090:9090"
+    volumes:
+      - minio_data:/data
+    command: server --console-address ":9090" /data
 
 volumes:
   db:
+  minio_data:
+  bundle:

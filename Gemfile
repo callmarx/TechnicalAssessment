@@ -19,6 +19,8 @@ gem "puma", "~> 5.0"
 gem "jbuilder"
 # Pagination of models for use in views.
 gem "kaminari"
+# Get file from MinIO Bucket url
+gem "open-uri"
 
 ##### ADDITIONAL FUNCTIONS #####
 # Reduces boot times through caching; required in config/boot.rb
