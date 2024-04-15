@@ -1,5 +1,21 @@
 # README
 
+# Docker Compose commands
+
+Run all services:
+```sh
+docker compose up
+```
+
+Rails console (it needs at least the `db` service running):
+```sh
+docker compose exec api bin/rails c
+```
+
+Run tests (it needs at least the `db` service running):
+```sh
+docker compose exec api bin/rspec c
+```
 
 ## Things to think:
  - use mongodb as database

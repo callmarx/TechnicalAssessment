@@ -5,22 +5,22 @@ require "rails_helper"
 RSpec.describe QuakeLog::Parser do
   describe "#perform" do
     context "when the log file is empty" do
-      let(:file_path) { "spec/fixtures/empty.log" }
+      let(:file_opened) { File.open "spec/fixtures/empty.log" }
 
       it "does not create any game objects" do
-        expect { described_class.new(file_path).perform }.not_to change(Game, :count)
+        expect { described_class.new(file_opened).perform }.not_to change(Game, :count)
       end
     end
 
     context "when the log file contains game data" do
-      let(:file_path) { "spec/fixtures/double-clean-games.log" }
+      let(:file_opened) { File.open "spec/fixtures/double-clean-games.log" }
 
       it "creates game objects based on the log file" do
-        expect { described_class.new(file_path).perform }.to change(Game, :count).by(2)
+        expect { described_class.new(file_opened).perform }.to change(Game, :count).by(2)
       end
 
       it "sets the correct attributes for the game objects" do
-        described_class.new(file_path).perform
+        described_class.new(file_opened).perform
 
         game_1 = Game.first
         game_2 = Game.last
@@ -106,10 +106,10 @@ RSpec.describe QuakeLog::Parser do
     end
 
     context "when the log file contains a 'InitGame:' without a 'ShutdownGame'" do
-      let(:file_path) { "spec/fixtures/crashed-games.log" }
+      let(:file_opened) { File.open "spec/fixtures/crashed-games.log" }
 
       it "sets has_crashed as true" do
-        described_class.new(file_path).perform
+        described_class.new(file_opened).perform
 
         game = Game.first
 
@@ -118,10 +118,10 @@ RSpec.describe QuakeLog::Parser do
     end
 
     context "when the log file contains ends without a 'ShutdownGame'" do
-      let(:file_path) { "spec/fixtures/crashed-end.log" }
+      let(:file_opened) { File.open "spec/fixtures/crashed-end.log" }
 
       it "sets has_crashed as true" do
-        described_class.new(file_path).perform
+        described_class.new(file_opened).perform
 
         game = Game.first
 
@@ -133,8 +133,8 @@ RSpec.describe QuakeLog::Parser do
   end
 
   describe "private methods" do
-    let!(:file_path) { "spec/fixtures/empty.log" }
-    subject { described_class.new(file_path) }
+    let!(:file_opened) { File.open "spec/fixtures/empty.log" }
+    subject { described_class.new(file_opened) }
 
     describe "#handle_crashed_match" do
       let(:game) { Game.new }
