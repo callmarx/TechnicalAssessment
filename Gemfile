@@ -12,8 +12,13 @@ gem "rails", "~> 7.0.8"
 gem "pg", "~> 1.1"
 # Web server.
 gem "puma", "~> 5.0"
+
+
+##### VIEWS/CONTROLLERS #####
 # Generates JSON structures via a builder interface.
 gem "jbuilder"
+# Pagination of models for use in views.
+gem "kaminari"
 
 ##### ADDITIONAL FUNCTIONS #####
 # Reduces boot times through caching; required in config/boot.rb
