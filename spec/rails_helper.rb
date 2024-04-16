@@ -9,6 +9,8 @@ abort("The Rails environment is running in production mode!") if Rails.env.produ
 
 require "rspec/rails"
 require "database_cleaner/active_record"
+require "webmock/rspec"
+# require 'sidekiq/testing'
 
 begin
   ActiveRecord::Migration.maintain_test_schema!
@@ -16,7 +18,6 @@ rescue ActiveRecord::PendingMigrationError => e
   abort e.to_s.strip
 end
 
-# ADD THIS for shoulda-matchers gem
 Shoulda::Matchers.configure do |config|
   config.integrate do |with|
     with.test_framework :rspec
@@ -37,6 +38,8 @@ RSpec.configure do |config|
     DatabaseCleaner.clean_with(:truncation)
   end
   config.around(:each) do |example|
+    # Sidekiq::Testing.inline! { example.run } if example.metadata[:sidekiq_inline] == true
+    
     DatabaseCleaner.cleaning do
       example.run
     end

@@ -3,8 +3,6 @@
 class WebhookController < ApplicationController
   def handle_uploaded_event
     payload = JSON.parse(request.body.read)
-    Rails.logger.info "Payload received from MinIO: #{payload}"
-
     if payload["Records"].present? && payload["Records"].is_a?(Array)
       record = payload["Records"].first
       object_key = record.dig("s3", "object", "key")
@@ -16,20 +14,17 @@ class WebhookController < ApplicationController
         # file_url = "#{endpoint}/#{bucket}/#{object_key}"
         # # Since we are inside the docker, endpoint must be the minio docker service name
         file_url = "http://minio:9000/#{bucket}/#{object_key}"
-        Rails.logger.info "URL to access the file: #{file_url}"
- 
-        file = URI.open(file_url)
-        QuakeLog::Parser.new(file).perform
+        Rails.logger.info "Calling LogProcessJob"
+        LogProcessJob.perform_async(file_url)
+        head :ok
       else
-        Rails.logger.error "Unable to find necessary information in the payload."
+        render json: { error: "Unable to find necessary information in the payload." }, status: :unprocessable_entity
       end
     else
-      Rails.logger.error "Payload does not contain records or is not in the expected format."
+      render json: { error: "Payload does not contain records or is not in the expected format." }, status: :unprocessable_entity
     end
 
-    head :ok
   rescue JSON::ParserError => e
-    Rails.logger.error "Error parsing JSON payload: #{e.message}"
-    head :bad_request
+    render json: { error: "Error parsing JSON payload: #{e.message}" }, status: :bad_request
   end
 end

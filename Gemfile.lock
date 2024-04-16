@@ -85,6 +85,10 @@ GEM
     coercible (1.0.0)
       descendants_tracker (~> 0.0.1)
     concurrent-ruby (1.2.3)
+    connection_pool (2.4.1)
+    crack (1.0.0)
+      bigdecimal
+      rexml
     crass (1.0.6)
     database_cleaner-active_record (2.1.0)
       activerecord (>= 5.a)
@@ -142,6 +146,7 @@ GEM
     foreman (0.88.1)
     globalid (1.2.1)
       activesupport (>= 6.1)
+    hashdiff (1.1.0)
     i18n (1.14.4)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
@@ -252,6 +257,10 @@ GEM
       zeitwerk (~> 2.5)
     rainbow (3.1.1)
     rake (13.2.1)
+    redis (5.2.0)
+      redis-client (>= 0.22.0)
+    redis-client (0.22.1)
+      connection_pool
     reek (6.3.0)
       dry-schema (~> 1.13.0)
       parser (~> 3.3.0)
@@ -329,6 +338,11 @@ GEM
     sexp_processor (4.17.1)
     shoulda-matchers (6.2.0)
       activesupport (>= 5.2.0)
+    sidekiq (7.2.2)
+      concurrent-ruby (< 2)
+      connection_pool (>= 2.3.0)
+      rack (>= 2.2.4)
+      redis-client (>= 0.19.0)
     simplecov (0.22.0)
       docile (~> 1.1)
       simplecov-html (~> 0.11)
@@ -350,6 +364,10 @@ GEM
       axiom-types (~> 0.1)
       coercible (~> 1.0)
       descendants_tracker (~> 0.0, >= 0.0.3)
+    webmock (3.23.0)
+      addressable (>= 2.8.0)
+      crack (>= 0.3.2)
+      hashdiff (>= 0.4.0, < 2.0.0)
     websocket-driver (0.7.6)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
@@ -377,6 +395,7 @@ DEPENDENCIES
   pry-rails
   puma (~> 5.0)
   rails (~> 7.0.8)
+  redis
   rspec-rails (~> 6.1.2)
   rubocop
   rubocop-packaging
@@ -385,7 +404,9 @@ DEPENDENCIES
   rubocop-rspec (~> 2.29.1)
   rubycritic
   shoulda-matchers (~> 6.2)
+  sidekiq
   simplecov
+  webmock
 
 RUBY VERSION
    ruby 3.2.2p53

@@ -3,27 +3,31 @@ version: "3.8"
 services:
   api:
     build: .
+    container_name: api
     volumes:
       - .:/app
-      - bundle:/usr/local/bundle
+      - bundle_data:/usr/local/bundle
     ports:
       - "3000:3000"
     environment:
       - HISTFILE=/app/log/.bash_history 
-      - DATABASE_HOST=db
+      - DATABASE_HOST=postgres
       - DATABASE_USERNAME=postgres
       - DATABASE_PASSWORD=postgres
+      - REDIS_URL=redis://redis:6379/0
+      - RAILS_ENV=development
     depends_on:
-      db:
+      postgres:
         condition: service_healthy
-      # redis:
-      #   condition: service_started
-  db:
-    image: postgres:14-alpine
+      redis:
+        condition: service_started
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres
     mem_limit: 256m
     command: -c fsync=off --client-min-messages=warning
     volumes:
-      - db:/var/lib/postgresql/data
+      - pg_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     environment:
@@ -35,7 +39,12 @@ services:
       interval: 2s
       timeout: 5s
       retries: 30
-
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    command: redis-server --maxmemory 500mb --maxmemory-policy noeviction
+    volumes:
+      - redis_data:/data
   minio:
     image: minio/minio
     container_name: minio
@@ -53,9 +62,9 @@ services:
       interval: 2s
       timeout: 5s
       retries: 4
-
   setup_minio:
     image: minio/mc
+    container_name: minio-mc
     depends_on:
       minio:
         condition: service_healthy
@@ -72,6 +81,7 @@ services:
       exit 0;"
 
 volumes:
-  db:
+  pg_data:
+  redis_data:
   minio_data:
-  bundle:
+  bundle_data:
