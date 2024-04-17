@@ -55,8 +55,6 @@ group :development, :test do
   ### TO-DO: In addition to the foreman gem, create a bin/setup script to prepare
   ### the project for first use. Use as reference:
   ### https://github.com/rubyforgood/human-essentials/blob/main/bin/setup
-  # Run multiple processes from a Procfile (web, jobs, etc.)
-  gem "foreman"
   # Rails plugin for command line.
   gem "pry-rails"
   # RSpec behavioral testing framework for Rails.

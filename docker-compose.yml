@@ -70,6 +70,8 @@ services:
         condition: service_healthy
       api:
         condition: service_healthy
+    volumes:
+      - ./spec/fixtures/:/logs
     entrypoint: >
       /bin/sh -c "
       mc config host add minio http://minio:9000 admin 12345678;
@@ -78,6 +80,7 @@ services:
       mc admin config set minio notify_webhook:logcreate endpoint='http://api:3000/uploaded-event' auth_token='some_secure_token' queue_limit='100';
       mc admin service restart minio;
       mc event add minio/quake3logs arn:minio:sqs::logcreate:webhook --event put;
+      mc put /logs/double-clean-games.log minio/quake3logs
       exit 0;"
 
 volumes:
