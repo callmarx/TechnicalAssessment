@@ -15,7 +15,6 @@ services:
       - DATABASE_USERNAME=postgres
       - DATABASE_PASSWORD=postgres
       - REDIS_URL=redis://redis:6379/0
-      - RAILS_ENV=development
     depends_on:
       postgres:
         condition: service_healthy
