@@ -15,7 +15,7 @@ This projet use this tools:
 - MinIO mc client
 
 ## A little explaining
-Creating a CRUD API that receives a file via POST initially seemed boring to me.
+Building a CRUD API that receives a file via POST initially seemed boring to me.
 Instead, I opted for a more realistic approach by setting up a Bucket with a
 webhook event trigger, which notifies my Ruby on Rails app whenever a new file
 is uploaded. I'm assuming a scenario where this bucket belongs to Quake 3 Arena
@@ -25,6 +25,21 @@ that usually are available on bucket systems like this event trigger.
 The Rails application processes the information received from the webhook to
 generate the URL from which the file can be downloaded. It then proceeds to parse
 the file and store the data accordingly.
+
+Moreover, below is a brief list of points that I assumed for this project based on
+the requirements of the statement:
+- There is no need for a frontend, so the base application is a RESTful API.
+- As the application already processes and stores log data in a job, the main
+endpoints are GET only, in this case the `/games/grouped_information` and the
+`/games/deaths_grouped_by_cause` endpoints (and also variations of INDEX and
+SHOW in `/games` with pagination).
+- There is no authentication; the endpoints are public.
+- As the statement explains that the players' score in `kills` should receive -1
+when `<world>` is the killer, but it doesn't say anything for when a player
+kills himself, I also considered this penalty for these cases of suicide.
+- Since a match is defined between the lines with `InitGame` and `ShutdownGame`,
+I include the `has_crashed` attribute in each game for cases where I encounter an
+`InitGame` without its respective `ShutdownGame`.
 
 ## Executing on your machine
 
@@ -73,10 +88,10 @@ running `docker compose exec api bin/rspec` and then accessing
 [coverage/index.html](./coverage/index.html)
 
 The endpoints for *"grouped information for each match"* and *"deaths grouped
-by death cause for each match"* required by the <./technical-test.mb> are
-respectively `/games/grouped_information` and `/games/deaths_grouped_by_cause`
-rendered as json. You can test them with tools like Postman or Insomnia. A simple
-curl for these is:
+by death cause for each match"* required by the statement are respectively
+`/games/grouped_information` and `/games/deaths_grouped_by_cause` rendered as
+json. You can test them with tools like Postman or Insomnia. A simple curl for
+these is:
 ```sh
 curl -X GET http://localhost:3000/games/grouped_information
 curl -X GET http://localhost:3000/games/deaths_grouped_by_cause
